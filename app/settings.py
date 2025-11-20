@@ -39,10 +39,10 @@ class Settings(BaseSettings):
 
 class PostgresSettings(BaseSettings):
 
-    POSTGRES_DB: str | None = Field(None)
-    POSTGRES_USER: str | None = Field(None)
-    POSTGRES_PASSWORD: str | None = Field(None)
-    POSTGRES_HOST: str | None = Field(None)
+    POSTGRES_DB: str | None = Field("auth")
+    POSTGRES_USER: str | None = Field("auth")
+    POSTGRES_PASSWORD: str | None = Field("auth")
+    POSTGRES_HOST: str | None = Field("auth-postgres:5432")
 
     @property
     def DATABASE_URL(self) -> str:
@@ -57,10 +57,18 @@ class PostgresSettings(BaseSettings):
 
 class TestPostgresSettings(BaseSettings):
 
-    POSTGRES_DB: str | None = Field(None, alias='TEST_POSTGRES_DB')
-    POSTGRES_USER: str | None = Field(None, alias='TEST_POSTGRES_USER')
-    POSTGRES_PASSWORD: str | None = Field(None, alias='TEST_POSTGRES_PASSWORD')
-    POSTGRES_HOST: str | None = Field(None, alias='TEST_POSTGRES_HOST')
+    POSTGRES_DB: str | None = Field(
+        "auth", alias='TEST_POSTGRES_DB'
+    )
+    POSTGRES_USER: str | None = Field(
+        "auth", alias='TEST_POSTGRES_USER'
+    )
+    POSTGRES_PASSWORD: str | None = Field(
+        "auth", alias='TEST_POSTGRES_PASSWORD'
+    )
+    POSTGRES_HOST: str | None = Field(
+        "auth-postgres:5432", alias='TEST_POSTGRES_HOST'
+    )
 
     @property
     def TEST_DATABASE_URL(self) -> str:
@@ -77,18 +85,18 @@ class TestPostgresSettings(BaseSettings):
 class AuthSettings(BaseSettings):
 
     ACCESS_TOKEN_SECRET_KEY: str | None = Field(
-        None, alias='ACCESS_TOKEN_SECRET_KEY'
+        "q", alias='ACCESS_TOKEN_SECRET_KEY'
     )
     REFRESH_TOKEN_SECRET_KEY: str | None = Field(
-        None,
+        "q",
         alias='REFRESH_TOKEN_SECRET_KEY'
     )
     ACCESS_TOKEN_EXPIRES_MINUTES: str | None = Field(
-        None,
+        "100",
         alias='ACCESS_TOKEN_EXPIRES_MINUTES'
     )
     REFRESH_TOKEN_EXPIRES_MINUTES: str | None = Field(
-        None,
+        "999",
         alias='REFRESH_TOKEN_EXPIRES_MINUTES'
     )
     POSTGRES_DB: str | None = Field(None, alias='TEST_POSTGRES_DB')
@@ -105,7 +113,9 @@ class AuthSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
 
-    REDIS_URL: str | None = Field(None, alias='REDIS_URL')
+    REDIS_URL: str | None = Field(
+        "redis://default:@auth-redis:6379/0", alias='REDIS_URL'
+    )
 
 
 main_settings = Settings()
