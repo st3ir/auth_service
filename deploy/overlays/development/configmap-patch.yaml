@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-backend-config
+  labels:
+    app: auth-backend
+data:
+  PYTHONDONTWRITEBYTECODE: '1'
+  HR_DOMAIN_URL: 'exlxx.ru'
+  HR_S3_PROXY_URL: "https://exlxx.ru"

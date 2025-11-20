@@ -1,0 +1,52 @@
+
+services:
+
+  backend:
+    image: auth_test
+    container_name: auth-test
+    extends:
+      file: docker-compose.base.yml
+      service: backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8200:8000"
+    environment:
+      - LOG_LEVEL=FATAL
+      - SKIP_AUTH=0
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+  redis:
+    hostname: redis
+    container_name: auth-redis_test
+    extends:
+      file: docker-compose.base.yml
+      service: redis
+    ports:
+      - "56378:6379"
+
+  postgres:
+    hostname: postgres-db
+    container_name: auth-db-test
+    extends:
+      file: docker-compose.base.yml
+      service: postgres
+    ports:
+      - "55532:5432"
+    environment:
+      - POSTGRES_DB=auth_test
+      - POSTGRES_USER=auth_test
+      - POSTGRES_PASSWORD=auth_test
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U auth_test -d auth_test"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

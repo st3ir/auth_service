@@ -1,0 +1,36 @@
+
+services:
+
+  backend:
+    extends:
+      file: docker-compose.base.yml
+      service: backend
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8100:8000"
+    command: uvicorn main:app --reload --host 0.0.0.0
+
+  redis:
+    hostname: redis
+    extends:
+      file: docker-compose.base.yml
+      service: redis
+    expose:
+      - "56379:6379"
+
+  postgres:
+    hostname: postgres-db
+    extends:
+      file: docker-compose.base.yml
+      service: postgres
+    volumes:
+      - /Users/ilya/Documents/data
+      - /Users/ilya/Documents/backup
+    ports:
+      - "55432:5432"
+    environment:
+      - POSTGRES_DB=auth
+      - POSTGRES_USER=auth
+      - POSTGRES_PASSWORD=auth

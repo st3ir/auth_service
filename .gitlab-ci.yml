@@ -1,0 +1,92 @@
+image: docker:dind
+
+stages:
+  - builds
+  - deps_check
+  - lint
+  - release
+  - deploy
+
+
+variables:
+  REGISTRY_URL: $DOCKER_REGISTRY_PROTOCOL://$DOCKER_REGISTRY:8443
+  IMAGE: $DOCKER_REGISTRY:8443/$DOCKER_USER/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA-$CI_COMMIT_BRANCH
+  HARBOR: $DOCKER_REGISTRY:8443/$DOCKER_USER/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA-$CI_COMMIT_BRANCH
+  RELEASE: $DOCKER_REGISTRY:8443/$DOCKER_USER/$CI_PROJECT_NAME:latest
+  DOCKER_RUN: 'docker run -v $CI_PROJECT_DIR:/usr/src/app $IMAGE'
+
+  
+
+
+before_script:
+   - mkdir ~/.docker
+   - echo $DOCKER_REGISTRY_CONFIG | base64 -d > ~/.docker/config.json
+   - ls /etc/docker/certs.d
+
+
+build:
+  stage: builds
+  tags:
+    - shared_runner
+  script:
+   - ls -la
+   - cd app/ && docker build -f docker/development/Dockerfile --pull -t $IMAGE .
+   - docker push $HARBOR
+
+python-deps-check:
+  stage: deps_check
+  tags:
+    - shared_runner
+  script:
+    - $DOCKER_RUN pip check
+
+requirements-safety-check:
+  stage: deps_check
+  script:
+    - $DOCKER_RUN sh -c "pip install safety && safety check --full-report"
+  tags:
+    - shared_runner
+  allow_failure: true
+
+lint:
+  stage: lint
+  script:
+    - cd app && $DOCKER_RUN flake8 -vvv
+  tags:
+    - shared_runner
+
+release:
+  stage: release
+  tags:
+    - shared_runner
+  script:
+    - docker pull $IMAGE
+    - docker tag $IMAGE $RELEASE
+    - docker push $RELEASE
+  only:
+    - main
+    - dev
+    - ml-dev
+
+deploy:
+  stage: deploy
+  image: exlxx.ru:8443/kubernetes/k8s-deploy-base:0.0.2
+  only:
+    - main
+    - dev
+    - ml-dev
+  tags:
+    - shared_runner
+  environment:
+  script:
+    - mkdir ~/.kube && echo $TL_ML_KUBECONFIG | base64 -d > ~/.kube/tl_ml_dev
+
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
+        kustomize build ./deploy/base | envsubst | kubectl -n main apply -f -
+      elif [[ "$CI_COMMIT_BRANCH" == "dev" ]]; then
+        kustomize build ./deploy/overlays/development | envsubst | kubectl --kubeconfig ~/.kube/tl_ml_dev -n dev apply -f -
+      else
+        echo "Some other branch is used (not main/develop)"
+      fi
+

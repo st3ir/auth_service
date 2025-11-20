@@ -1,0 +1,8 @@
+[flake8]
+exclude =
+    migrations
+    .env
+    .venv
+
+max-line-length=90
+ignore=F401,W503

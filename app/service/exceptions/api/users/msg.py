@@ -1,0 +1,11 @@
+inactive_user_text = "Inactive user"
+user_not_found_text = "User not found"
+invalid_user_role_text = "Invalid user role"
+user_email_already_exists_text = "Email already exists - {}. Use another email"
+invalid_user_token_text = "User token is invalid"
+expired_user_token_text = "User token is expired"
+invalid_login_data_text = "Invalid email or password. Try again"
+
+agreement_already_accepted_text = "Agreement {} already accepted"
+eula_must_be_accepted_text = "EULA must be accepted by user"
+right_not_match_with_role_text = "Right not match with user role by user_id={}."
