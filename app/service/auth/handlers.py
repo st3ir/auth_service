@@ -198,10 +198,10 @@ async def get_user_from_token(
             access_token,
             expires=int(a_s.REFRESH_TOKEN_EXPIRES_MINUTES) * 60,
 
-            # domain=domain,
-            # httponly=True,
-            # samesite='none',
-            # secure=True
+            domain=domain,
+            httponly=True,
+            samesite='none',
+            secure=True
         )
         return user
 

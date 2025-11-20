@@ -26,8 +26,8 @@ services:
       file: docker-compose.base.yml
       service: postgres
     volumes:
-      - /Users/ilya/Documents/data
-      - /Users/ilya/Documents/backup
+      - /mnt/docker/postgres/data:/var/lib/postgresql/data
+      - /mnt/docker/postgres/backup:/var/lib/postgresql/backup
     ports:
       - "55432:5432"
     environment:
